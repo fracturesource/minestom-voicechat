@@ -1,6 +1,7 @@
-package dev.lu15.voicechat.network.minecraft
+package dev.lu15.voicechat.network.minecraft.packets
 
 import dev.lu15.voicechat.VoiceChat
+import dev.lu15.voicechat.network.minecraft.Packet
 import dev.lu15.voicechat.network.minecraft.packets.clientbound.CategoryAddedPacket
 import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupChangedPacket
 import dev.lu15.voicechat.network.minecraft.packets.clientbound.GroupCreatedPacket
@@ -18,7 +19,7 @@ import net.kyori.adventure.key.Key
 import net.minestom.server.network.NetworkBuffer
 import net.minestom.server.network.packet.server.common.PluginMessagePacket
 
-class MinecraftPacketHandler {
+object VoiceChatPacketSerializer {
     private val serializers: MutableMap<Key, NetworkBuffer.Type<Packet<*>>> = mutableMapOf()
 
     init {
@@ -42,7 +43,7 @@ class MinecraftPacketHandler {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Packet<T>> register(id: Key, serializer: NetworkBuffer.Type<T>) {
+    private fun <T : Packet<T>> register(id: Key, serializer: NetworkBuffer.Type<T>) {
         if (id.namespace() != VoiceChat.NAMESPACE) error("ID with incorrect namespace used")
         serializers[id] = serializer as NetworkBuffer.Type<Packet<*>>
     }

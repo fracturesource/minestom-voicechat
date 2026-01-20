@@ -29,6 +29,7 @@ data class Category(
                 return icon
             }
         }
+
         val NETWORK_TYPE: NetworkBuffer.Type<Category> = NetworkBufferTemplate.template(
             NetworkBuffer.STRING, Category::name,
             NetworkBuffer.STRING.optional(), Category::description,

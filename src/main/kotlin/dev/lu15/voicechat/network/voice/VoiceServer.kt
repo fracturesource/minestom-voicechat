@@ -41,7 +41,6 @@ class VoiceServer(
     eventNode: EventNode<Event>
 ) {
     private val socket = VoiceSocket()
-    private val packetHandler = VoicePacketHandler()
     private val packetQueue: BlockingQueue<RawPacket> = LinkedBlockingQueue()
     private val connections: MutableMap<SocketAddress, Player> = HashMap()
 
@@ -102,7 +101,7 @@ class VoiceServer(
                 }
 
                 val rawPacket = packetQueue.poll(10, TimeUnit.MILLISECONDS) ?: continue
-                val packet = packetHandler.read(rawPacket) ?: continue
+                val packet = VoicePacketHandler.read(rawPacket) ?: continue
 
                 if (System.currentTimeMillis() - rawPacket.timestamp > packet.timeToLive()) {
                     logger.error("Dropping expired voice packet: {}", packet)
@@ -153,7 +152,7 @@ class VoiceServer(
     @Throws(IOException::class)
     private fun <T : VoicePacket<T>> write0(player: Player, packet: T) {
         val address = player.getTag(VoiceChatTags.VOICE_CLIENT) ?: return
-        socket.write(packetHandler.write(player, packet), address)
+        socket.write(VoicePacketHandler.write(player, packet), address)
     }
 
     private fun checkKeepAlives() {

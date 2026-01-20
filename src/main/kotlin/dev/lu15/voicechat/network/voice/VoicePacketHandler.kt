@@ -19,8 +19,8 @@ import net.minestom.server.entity.Player
 import net.minestom.server.network.NetworkBuffer
 import net.minestom.server.utils.collection.ObjectArray
 
-// thanks, minestom
-class VoicePacketHandler {
+object VoicePacketHandler {
+    private const val MAGIC_BYTE: Byte = 255.toByte()
     private val suppliers: ObjectArray<NetworkBuffer.Type<VoicePacket<*>>> = ObjectArray.singleThread(0xA)
 
     init {
@@ -93,9 +93,5 @@ class VoicePacketHandler {
         buffer.copyTo(0, result, 0, result.size.toLong())
 
         return result
-    }
-
-    companion object {
-        private const val MAGIC_BYTE: Byte = 255.toByte()
     }
 }
