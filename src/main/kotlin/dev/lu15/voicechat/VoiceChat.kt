@@ -56,5 +56,7 @@ interface VoiceChat {
         }
 
         const val NAMESPACE: String = "voicechat"
+
+        val Player.hasVoiceChat: Boolean get() = hasTag(VoiceChatTags.VOICE_CLIENT)
     }
 }

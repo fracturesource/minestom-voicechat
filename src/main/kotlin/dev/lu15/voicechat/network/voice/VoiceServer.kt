@@ -3,6 +3,7 @@ package dev.lu15.voicechat.network.voice
 import dev.lu15.voicechat.SoundSources
 import dev.lu15.voicechat.VoiceChat
 import dev.lu15.voicechat.VoiceChatTags
+import dev.lu15.voicechat.api.SoundSelector
 import dev.lu15.voicechat.config.VoiceChatConfiguration
 import dev.lu15.voicechat.event.PlayerJoinVoiceChatEvent
 import dev.lu15.voicechat.event.PlayerMicrophoneEvent
@@ -38,7 +39,7 @@ class VoiceServer(
     private val address: InetAddress,
     private val port: Int,
     val config: VoiceChatConfiguration,
-    eventNode: EventNode<Event>
+    eventNode: EventNode<Event>,
 ) {
     private val socket = VoiceSocket()
     private val packetQueue: BlockingQueue<RawPacket> = LinkedBlockingQueue()
@@ -198,25 +199,28 @@ class VoiceServer(
         EventDispatcher.call(PlayerJoinVoiceChatEvent(player))
     }
 
+    private val soundSelector = SoundSelector.distance(config.voiceChatDistance)
+
     private fun handleMic(player: Player, packet: MicPacket) {
         // todo: implement groups?
 
-        val event = PlayerMicrophoneEvent(player, packet.data)
-        EventDispatcher.callCancellable(event) {
-            val soundPacket = PlayerSoundPacket(
-                player.uuid, // the channel is the sender's UUID
-                player.uuid,
-                event.audio,
-                packet.sequenceNumber,
-                event.soundSelector.distance(),
-                packet.whispering,
-                SoundSources.PROXIMITY,
-            )
+        val hearable = soundSelector.canHear(player).toMutableSet() // TODO wtf is sound selector??
+        hearable.remove(player)
+        hearable.removeIf { player -> player.getTag(VoiceChatTags.PLAYER_STATE)?.disabled == true }
 
-            val hearable = event.soundSelector.canHear(player).toMutableSet() // TODO wtf is sound selector??
-            hearable.remove(player)
-            hearable.removeIf { player -> player.getTag(VoiceChatTags.PLAYER_STATE)?.disabled == true }
-            hearable.forEach { player -> write(player, soundPacket) }
+        hearable.forEach { receiver ->
+            val event = PlayerMicrophoneEvent(player, receiver, packet.data)
+            EventDispatcher.callCancellable(event) {
+                write(player, PlayerSoundPacket(
+                    player.uuid, // the channel is the sender's UUID
+                    player.uuid,
+                    event.audio,
+                    packet.sequenceNumber,
+                    event.soundSelector.distance(),
+                    packet.whispering,
+                    SoundSources.PROXIMITY,
+                ))
+            }
         }
     }
 

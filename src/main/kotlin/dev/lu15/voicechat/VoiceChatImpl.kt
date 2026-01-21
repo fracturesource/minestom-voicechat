@@ -2,6 +2,7 @@
 
 package dev.lu15.voicechat
 
+import dev.lu15.voicechat.VoiceChat.Companion.hasVoiceChat
 import dev.lu15.voicechat.config.VoiceChatConfiguration
 import dev.lu15.voicechat.event.PlayerHandshakeVoiceChatEvent
 import dev.lu15.voicechat.event.PlayerJoinVoiceChatEvent
@@ -156,7 +157,7 @@ internal class VoiceChatImpl private constructor(
         val key = categoriesRegistry.register(id, category)
 
         MinecraftServer.getConnectionManager().onlinePlayers.forEach { player ->
-            if (!player.hasTag(VoiceChatTags.VOICE_CLIENT)) return@forEach  // only send to voice chat clients
+            if (!player.hasVoiceChat) return@forEach  // only send to voice chat clients
 
             // remove the existing category if it exists, then add the new one
             if (existing != null) sendPacket(player, CategoryRemovedPacket(id))
@@ -171,7 +172,7 @@ internal class VoiceChatImpl private constructor(
         if (!removed) return false
 
         MinecraftServer.getConnectionManager().onlinePlayers.forEach { player ->
-            if (!player.hasTag(VoiceChatTags.VOICE_CLIENT)) return@forEach  // only send to voice chat clients
+            if (!player.hasVoiceChat) return@forEach  // only send to voice chat clients
             sendPacket(player, CategoryRemovedPacket(category.key()))
         }
 
