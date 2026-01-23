@@ -211,7 +211,7 @@ class VoiceServer(
         hearable.forEach { receiver ->
             val event = PlayerMicrophoneEvent(player, receiver, packet.data)
             EventDispatcher.callCancellable(event) {
-                write(player, PlayerSoundPacket(
+                write(receiver, PlayerSoundPacket(
                     player.uuid, // the channel is the sender's UUID
                     player.uuid,
                     event.audio,
