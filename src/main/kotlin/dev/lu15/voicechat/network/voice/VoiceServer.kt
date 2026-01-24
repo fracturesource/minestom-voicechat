@@ -3,7 +3,6 @@ package dev.lu15.voicechat.network.voice
 import dev.lu15.voicechat.SoundSources
 import dev.lu15.voicechat.VoiceChat
 import dev.lu15.voicechat.VoiceChatTags
-import dev.lu15.voicechat.api.SoundSelector
 import dev.lu15.voicechat.config.VoiceChatConfiguration
 import dev.lu15.voicechat.event.PlayerJoinVoiceChatEvent
 import dev.lu15.voicechat.event.PlayerMicrophoneEvent
@@ -199,29 +198,43 @@ class VoiceServer(
         EventDispatcher.call(PlayerJoinVoiceChatEvent(player))
     }
 
-    private val soundSelector = SoundSelector.distance(config.voiceChatDistance)
-
     private fun handleMic(player: Player, packet: MicPacket) {
-        // todo: implement groups?
-
-        val hearable = soundSelector.canHear(player).toMutableSet() // TODO wtf is sound selector??
+        val hearable = player.instance.players.toMutableSet()
         hearable.remove(player)
         hearable.removeIf { player -> player.getTag(VoiceChatTags.PLAYER_STATE)?.disabled == true }
+
+        val heardBy = mutableSetOf<Player>()
 
         hearable.forEach { receiver ->
             val event = PlayerMicrophoneEvent(player, receiver, packet.data)
             EventDispatcher.callCancellable(event) {
-                write(receiver, PlayerSoundPacket(
-                    player.uuid, // the channel is the sender's UUID
-                    player.uuid,
-                    event.audio,
-                    packet.sequenceNumber,
-                    event.soundSelector.distance(),
-                    packet.whispering,
-                    SoundSources.PROXIMITY,
-                ))
+                if (receiver.getDistance(player) <= event.distance) {
+                    val outgoingPacket = PlayerSoundPacket(
+                        player.uuid, // the channel is the sender's UUID
+                        player.uuid,
+                        event.audio,
+                        packet.sequenceNumber,
+                        event.distance,
+                        packet.whispering,
+                        SoundSources.PROXIMITY,
+                    )
+
+                    write(receiver, outgoingPacket)
+
+                    heardBy.add(receiver)
+                }
             }
         }
+
+        // update last heard by
+        val tick = player.aliveTicks
+        val heardByMap = heardBy.associate { it.uuid to tick }
+
+        if (!player.hasTag(VoiceChatTags.LAST_HEARD_BY)) {
+            player.setTag(VoiceChatTags.LAST_HEARD_BY, emptyMap())
+        }
+
+        player.updateTag(VoiceChatTags.LAST_HEARD_BY) { map -> map + heardByMap }
     }
 
     private fun handleKeepAlive(player: Player) {
@@ -235,5 +248,9 @@ class VoiceServer(
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(VoiceServer::class.java)
+
+        fun Player.getLastHeardBy(receiver: Player): Long? {
+            return getTag(VoiceChatTags.LAST_HEARD_BY)?.get(receiver.uuid)
+        }
     }
 }

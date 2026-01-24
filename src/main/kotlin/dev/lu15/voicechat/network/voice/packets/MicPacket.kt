@@ -7,7 +7,7 @@ import net.minestom.server.network.NetworkBufferTemplate
 data class MicPacket(
     val data: ByteArray,
     val sequenceNumber: Long,
-    val whispering: Boolean
+    val whispering: Boolean,
 ) : VoicePacket<MicPacket> {
     override fun id(): Int {
         return 0x1

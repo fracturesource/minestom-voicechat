@@ -10,6 +10,7 @@ object VoiceChatTags {
     val VOICE_CLIENT: Tag<SocketAddress> = create("voice-client", Tag<SocketAddress>::Transient)
     val PLAYER_STATE: Tag<VoiceState> = create("player-state", Tag<VoiceState>::Transient)
     val LAST_KEEP_ALIVE: Tag<Long> = create("last-keep-alive", Tag<Long>::Long)
+    val LAST_HEARD_BY: Tag<Map<UUID, Long>> = create("last-heard-by", Tag<Map<UUID, Long>>::Transient)
     val SECRET: Tag<UUID> = create("secret", Tag<UUID>::Transient)
 
     private fun <T> create(id: String, factory: (id: String) -> Tag<T>): Tag<T> {
