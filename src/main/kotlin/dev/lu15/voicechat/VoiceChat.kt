@@ -3,6 +3,7 @@ package dev.lu15.voicechat
 import dev.lu15.voicechat.network.minecraft.Category
 import dev.lu15.voicechat.network.minecraft.Packet
 import dev.lu15.voicechat.network.voice.VoicePacket
+import dev.lu15.voicechat.network.voice.VoiceServer
 import net.kyori.adventure.key.Key
 import net.minestom.server.entity.Player
 import net.minestom.server.event.Event
@@ -11,6 +12,8 @@ import net.minestom.server.registry.RegistryKey
 import org.jetbrains.annotations.Unmodifiable
 
 interface VoiceChat {
+    val server: VoiceServer
+
     fun <T : Packet<T>> sendPacket(player: Player, packet: T)
 
     fun <T : VoicePacket<T>> sendPacket(player: Player, packet: T)

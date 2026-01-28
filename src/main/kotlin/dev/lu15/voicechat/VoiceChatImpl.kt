@@ -47,7 +47,7 @@ internal class VoiceChatImpl private constructor(
 ) : VoiceChat {
     val categoriesRegistry: DynamicRegistry<Category> = DynamicRegistry.create(Key.key(VoiceChat.NAMESPACE, "categories"))
 
-    private val server: VoiceServer
+    override val server: VoiceServer
 
     val handler = BufferPacketHandler().also { handler ->
         handler.register(HandshakePacket.IDENTIFIER, ::handleHandshake)
