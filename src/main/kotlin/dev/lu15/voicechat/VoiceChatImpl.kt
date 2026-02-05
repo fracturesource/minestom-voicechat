@@ -188,13 +188,13 @@ internal class VoiceChatImpl private constructor(
 
         private var eventNode: EventNode<Event>? = null
 
-        override fun eventNode(node: EventNode<Event>): VoiceChat.Builder {
-            eventNode = node
+        override fun eventNode(eventNode: EventNode<Event>): VoiceChat.Builder {
+            this.eventNode = eventNode
             return this
         }
 
-        override fun publicAddress(address: String): VoiceChat.Builder {
-            publicAddress = address
+        override fun publicAddress(publicAddress: String): VoiceChat.Builder {
+            this.publicAddress = publicAddress
             return this
         }
 
