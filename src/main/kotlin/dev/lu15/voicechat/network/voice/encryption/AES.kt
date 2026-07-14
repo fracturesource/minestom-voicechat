@@ -26,7 +26,7 @@ object AES {
         val buffer = NetworkBuffer.staticBuffer(SECRET_LENGTH.toLong())
         buffer.write(NetworkBuffer.UUID, uuid)
         val bytes = ByteArray(SECRET_LENGTH)
-        buffer.copyTo(0, bytes, 0, SECRET_LENGTH.toLong())
+        buffer.copyTo(0, bytes, 0, SECRET_LENGTH)
         return bytes
     }
 

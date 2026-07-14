@@ -61,7 +61,7 @@ object VoiceChatPacketSerializer {
         buffer.write(serializer, packet)
 
         val data = ByteArray(buffer.writeIndex().toInt())
-        buffer.copyTo(0, data, 0, data.size.toLong())
+        buffer.copyTo(0, data, 0, data.size)
 
         return PluginMessagePacket(packet.id().asString(), data)
     }

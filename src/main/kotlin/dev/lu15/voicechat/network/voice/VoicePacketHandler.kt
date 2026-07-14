@@ -84,13 +84,13 @@ object VoicePacketHandler {
         packet.serializer().write(inner, packet)
 
         val data = ByteArray(inner.writeIndex().toInt())
-        inner.copyTo(0, data, 0, data.size.toLong())
+        inner.copyTo(0, data, 0, data.size)
 
         val encrypted = AES.encrypt(secret, data)
         buffer.write(NetworkBuffer.BYTE_ARRAY, encrypted)
 
         val result = ByteArray(buffer.writeIndex().toInt())
-        buffer.copyTo(0, result, 0, result.size.toLong())
+        buffer.copyTo(0, result, 0, result.size)
 
         return result
     }
